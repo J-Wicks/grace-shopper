@@ -1,4 +1,9 @@
-module.exports = {
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+
+
+module.exports = browserConfig;
+
+const browserConfig = {
   entry: './browser/index.js', // assumes your entry point is the index.js in the root of your project folder
   output: {
     path: __dirname,
@@ -16,13 +21,69 @@ module.exports = {
         }
       },
       {
-            test: /\.scss$/,
-            use: [
-              'style-loader',
-              'css-loader',
-              'sass-loader'
-            ]
-      }
-    ]
-  }
+        test: /\.scss$/,
+        use: [
+          'style-loader',
+          'css-loader',
+          'sass-loader'
+        ],
+      },
+      {
+        test: /\.css$/,
+        loader: ExtractTextPlugin.extract({
+          loader: [
+            {
+              loader: 'css-loader',
+              query: {
+                localIdentName: '[hash:8]',
+                modules: true,
+              },
+            },
+          ],
+        }),
+      },
+    ],
+  },
+  plugins: [
+    new ExtractTextPlugin({
+      filename: '[name].css',
+      allChunks: true,
+    })
+  ]
 };
+
+const serverCOnfig = {
+  entry: '/src/server/index.js',
+  terget: "node",
+  output: {
+    path: __dirname,
+    filename: "server.js",
+    libraryTaret: "commonjs2"
+  },
+  devtool: "cheap-module-source-map",
+  module: {
+    rules: [
+      {
+        test: /js$/,
+        exclude:/(node_modules)/,
+        loader: "babel-loader",
+        query: {presets: ["react-app"]}
+      },
+      {
+        test: /\.css$/,
+        loader: ExtractTextPlugin.extract({
+          loader: [
+            {
+              loader: 'css-loader',
+              query: {
+                localIdentName: '[hash:8]',
+                modules: true,
+              },
+            },
+          ],
+        }),
+      },
+    ],
+  },
+}
+

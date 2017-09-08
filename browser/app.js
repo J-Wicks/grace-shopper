@@ -107,32 +107,6 @@ export const App = () => {
     </Router>);
 };
 
-ReactDOM.render(
-  <Provider store={store}>
-  	<Router history = {hashHistory}>
-    <Route path='/landing' component = {Landing} />
-  	<Route path='/' component = {AppContainer} onEnter={onAppEnter}>
-        <IndexRoute component={Home} />
-        <Route path="/home" component={Home} />
-        <Route path='products/region/:region' component={RegionContainer} />
-        <Route path='/products' component={ProductsContainer} onEnter={onAppEnter}/>
-        <Route path='/products/:productId' component= {ProductContainer} onEnter={onProductEnter}/>
-        <Route path='/admin' component={AdminHome} />
-        <Route path='/admin/users' component={UsersContainer} />
-        <Route path='/admin/products' component={ManageProductsContainer} />
-        <Route path='/admin/orders' component={ManageOrdersContainer} />
-        <Route path='/users/:userId' component={UserContainer} onEnter={onUserEnter} />
-        <Route path='/cart' component={CartContainer} />
-        <Route path='/login' component={LoginContainer} />
-        <Route path='/order' component={OrderContainer} />
-        <Route path='/passwordreset' component={PasswordResetContainer} />
-        <Route path='/admin/orderstats' component={OrderStatsContainer} onEnter={onStatsEnter} />
-  	</Route>
-	  </Router>
-  </Provider>,
-  document.getElementById('app') // make sure thisa is the same as the id of the div in your index.html
-);
-
 
 
 //<Route path='/' component = {Landing} />

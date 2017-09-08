@@ -1,23 +1,33 @@
+import React from 'react';
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
+import reducer from '../browser/reducers';
+import { App } from '../browser/app.js';
+import { renderToString } from 'react-dom/server' 
+
 const express = require('express');
-const app = express();
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const path = require('path');
 const db = require('./db');
-const Users = require('./models/users')
-//passport for our db session
+// const Users = require('./models/users');
+// passport for our db session
 const passport = require('passport');
-var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 
 
-if (!process.env.HEROKU){
-  const secrets = require('../secrets')
-}
+// var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+
+
+
+// if (!process.env.HEROKU){
+//   const secrets = require('../secrets')
+// }
 
 //new sequelize session for auth
 const session = require('express-session');
 const SequelizeStore = require('connect-session-sequelize')(session.Store);
 const dbStore = new SequelizeStore({ db: db });
+const app = express();
 
 dbStore.sync();
 
@@ -28,10 +38,10 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'a wildly insecure secret',
   store: dbStore,
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
 }));
 
-//using out passport on our session
+// using out passport on our session
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -41,8 +51,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use('/api', require('./api'));
 
-//serialize/deserialize users
-
+// Commenting out to run on local machine
+/*
 // **GOOGLE OAUTH**
 // collect our google configuration into an object
 const googleConfig = {
@@ -51,8 +61,8 @@ const googleConfig = {
   callbackURL: '/google/callback'
 };
 
-// configure the strategy with our config object, and write the function that passport will invoke after google sends
-// us the user's profile and access token
+configure the strategy with our config object, and write the function that passport will invoke after google sends
+us the user's profile and access token
 const strategy = new GoogleStrategy(googleConfig, function (token, refreshToken, profile, done) {
   const googleId = profile.id;
   const firstName = profile.name.givenName;
@@ -94,18 +104,37 @@ passport.deserializeUser((id, done) => {
 app.get('/google',
   passport.authenticate('google', { scope: 'email' }));
 
-app.get('/google/callback', 
+app.get('/google/callback',
   passport.authenticate('google', {
-  successRedirect: '/products',
-  failureRedirect: '/login'
+    successRedirect: '/products',
+    failureRedirect: '/login'
   }) 
 );
 
-
+*/
 
 // bundle needs this line
 app.use('/files', express.static(path.join(__dirname, '../public')));
 
+function handleRender(req, res) {
+  const store = createStore(reducer);
+
+  const html = renderToString(
+    <Provider store={store}>
+      <App />
+    </Provider>,
+  );
+
+  const preloadedState = store.getState();
+  res.send(renderFullPage(html, preloadedState))
+}
+
+app.use(handleRender);
+
+
+function renderFullPage(html, preloadedState) {
+
+}
 
 app.use(express.static(path.join(__dirname, '../node_modules')))
 
